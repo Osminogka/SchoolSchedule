@@ -65,10 +65,44 @@ namespace SchoolSchedule.Server.Controllers
         public async Task<IActionResult> updateDayOfWeekAsync([FromBody] Week week)
         {
             Response response = new Response();
-
+            Schedule schedule = new Schedule();
+            Course? course = new Course();
             try
             {
+                Schedule? day = await ScheduleContext.Schedules.SingleOrDefaultAsync(obj => obj.Week == week.WeekNumber);
+                if(day == null)
+                {
+                    response.Message = "Such week doesn't exist";
+                    return Ok(response);
+                }
 
+                foreach(PropertyInfo property in week.GetType().GetProperties())
+                {
+                    if (property.PropertyType == typeof(List<string>))
+                    {
+                        var list = (List<string>)property.GetValue(week, null);
+                        int length = list.Count;
+                        if(length > 0)
+                        {
+                            var daySchedule = (List<string>)property.GetValue(week, null);
+                            int lessonNumber = 1;
+                            foreach (string lesson in daySchedule)
+                            {
+                                schedule.LessonNumber = lessonNumber;
+                                course = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == lesson);
+                                if (course == null)
+                                {
+                                    response.Message = $"Lesson ${lessonNumber}, such course doesn't exist";
+                                    return Ok(response);
+                                }
+                                schedule.CourseId = course.Id;
+                            }
+                        }
+                        ScheduleContext.Schedules.Update(schedule);
+                    }
+                }
+
+                await ScheduleContext.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -85,46 +119,17 @@ namespace SchoolSchedule.Server.Controllers
         {
             Response response = new Response();
             List<Schedule> weekSchedule = new List<Schedule>();
-            WeekResponse weekResponse = new WeekResponse();
+            Week weekResponse = new Week();
             try
             {
                 weekSchedule = await ScheduleContext.Schedules
                     .Include(obj => obj.Course)
                     .Where(obj => obj.Week == week).ToListAsync();
-                foreach(Schedule day in weekSchedule)
-                {
-                    CourseRequest courseReq = new CourseRequest()
-                    {
-                        Name = day.Course.Name,
-                        Description = day.Course.Description
-                    };
-                    switch (day.DayOfWeek)
-                    {
-                        case 1:
-                            weekResponse.Monday.Add(courseReq);
-                            break;
-                        case 2:
-                            weekResponse.Tuesday.Add(courseReq);
-                            break;
-                        case 3:
-                            weekResponse.Wednesday.Add(courseReq);
-                            break;
-                        case 4:
-                            weekResponse.Thursday.Add(courseReq);
-                            break;
-                        case 5:
-                            weekResponse.Friday.Add(courseReq);
-                            break;
-                        case 6:
-                            weekResponse.Saturday.Add(courseReq);
-                            break;
-                        case 7:
-                            weekResponse.Sunday.Add(courseReq);
-                            break;
-                        default:
-                            throw new Exception("Invalid day of week");
-                    }
-                }
+                weekResponse.Monday = weekSchedule.Where(obj => obj.DayOfWeek == 1).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+                weekResponse.Tuesday = weekSchedule.Where(obj => obj.DayOfWeek == 2).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+                weekResponse.Wednesday = weekSchedule.Where(obj => obj.DayOfWeek == 3).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+                weekResponse.Thursday = weekSchedule.Where(obj => obj.DayOfWeek == 4).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+                weekResponse.Friday = weekSchedule.Where(obj => obj.DayOfWeek == 5).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
             }
             catch (Exception ex)
             {
@@ -144,7 +149,7 @@ namespace SchoolSchedule.Server.Controllers
 
         public string Message { get; set; } = "Request has failed";
 
-        public WeekResponse Week { get; set; } = new WeekResponse();
+        public Week Week { get; set; } = new Week();
     }
 
     public class Week
@@ -159,29 +164,8 @@ namespace SchoolSchedule.Server.Controllers
 
         public List<string> Friday { get; set; } = new List<string>();
 
-        public List<string> Saturday { get; set; } = new List<string>();
-
-        public List<string> Sunday { get; set; } = new List<string>();
-
         public int WeekNumber { get; set; }
         
-    }
-
-    public class WeekResponse
-    {
-        public List<CourseRequest> Monday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Tuesday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Wednesday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Thursday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Friday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Saturday { get; set; } = new List<CourseRequest>();
-
-        public List<CourseRequest> Sunday { get; set; } = new List<CourseRequest>();
     }
 
     public enum DayOfWeekNumber
@@ -190,8 +174,6 @@ namespace SchoolSchedule.Server.Controllers
         Tuesday = 2,
         Wednesday = 3,
         Thursday = 4,
-        Friday = 5,
-        Saturday = 6,
-        Sunday = 7
+        Friday = 5
     }
 }

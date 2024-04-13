@@ -4,11 +4,24 @@ using static Microsoft.AspNetCore.Http.StatusCodes;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<ScheduleContext>(opts => 
-    opts.UseSqlServer(builder.Configuration.GetConnectionString("ScheduleConnection")));
+//Database setup
+string Schedule = string.Empty;
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddEnvironmentVariables().AddJsonFile("appsettings.Development.json");
+    Schedule = builder.Configuration.GetConnectionString("ScheduleConnection");
+}
+else
+{
+    Schedule = builder.Configuration.GetConnectionString("ScheduleConnection");
+}
+
+builder.Services.AddDbContext<ScheduleContext>(opts =>
+    opts.UseSqlServer(Schedule));
+
 
 builder.Services.AddHttpsRedirection(options =>
 {

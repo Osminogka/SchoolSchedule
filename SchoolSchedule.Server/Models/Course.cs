@@ -10,9 +10,6 @@ namespace SchoolSchedule.Server.Models
         [Required]
         public string Name { get; set; }
 
-        [Required]
-        public string Description { get; set; }
-
         public ICollection<Schedule> Schedules { get; set; }
     }
 }

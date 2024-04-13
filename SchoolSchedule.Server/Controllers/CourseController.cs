@@ -16,19 +16,19 @@ namespace SchoolSchedule.Server.Controllers
         }
 
         [HttpPost("new")]
-        public async Task<IActionResult> createNewCourseAsync([FromBody] CourseRequest course)
+        public async Task<IActionResult> createNewCourseAsync([FromBody] string course)
         {
             Response response = new Response();
 
             try
             {
-                if(course.Name == null || course.Description == null)
+                if(course == null)
                 {
-                    response.Message = "Invalid course name or description";
+                    response.Message = "Invalid course name";
                     return Ok(response);
                 }
 
-                Course? courseDb = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == course.Name);
+                Course? courseDb = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == course);
                 if(courseDb != null)
                 {
                     response.Message = "Such course already exist";
@@ -37,8 +37,7 @@ namespace SchoolSchedule.Server.Controllers
 
                 Course tempCourse = new Course()
                 {
-                    Name = course.Name,
-                    Description = course.Description
+                    Name = course
                 };
 
                 await ScheduleContext.Courses.AddAsync(tempCourse);
@@ -54,12 +53,4 @@ namespace SchoolSchedule.Server.Controllers
             return Ok(response);
         }
     }
-
-    public class CourseRequest 
-    { 
-        public string Name { get; set; }
-
-        public string Description { get; set; }
-    }
-
 }
