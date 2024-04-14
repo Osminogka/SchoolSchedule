@@ -1,6 +1,5 @@
 <script setup>
 import MainHeader from '@/components/MainHeader.vue'
-import MainPage from '@/components/MainPage.vue'
 
 </script>
 
@@ -10,7 +9,8 @@ import MainPage from '@/components/MainPage.vue'
   </header>
 
   <main>
-    <main-page />
+    <router-view>
+    </router-view>
   </main>
 </template>
 

@@ -52,5 +52,33 @@ namespace SchoolSchedule.Server.Controllers
             response.Message = "Course created";
             return Ok(response);
         }
+
+        [HttpGet("get")]
+        public async Task<IActionResult> getCoursesAsync()
+        {
+            CourseResp response = new CourseResp();
+            
+            try
+            {
+                response.Courses = await ScheduleContext.Courses.Select(obj => obj.Name).ToListAsync();
+            }
+            catch(Exception ex)
+            {
+                return HandleException(ex);
+            }
+
+            response.Success = true;
+            response.Message = "Got all courses";
+            return Ok(response);
+        }
+    }
+
+    public class CourseResp
+    {
+        public bool Success { get; set; } = false;
+
+        public string Message { get; set; } = string.Empty;
+
+        public List<string> Courses { get; set; } = new List<string>();
     }
 }
