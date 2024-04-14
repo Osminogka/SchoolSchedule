@@ -43,6 +43,8 @@ app.MapFallbackToFile("/index.html");
 var scope = app.Services.CreateScope();
 var ctx = scope.ServiceProvider.GetRequiredService<ScheduleContext>();
 
+ctx.Database.Migrate();
+
 Course? course = await ctx.Courses.SingleOrDefaultAsync(obj => obj.Id == 1);
 if(course == null)
 {

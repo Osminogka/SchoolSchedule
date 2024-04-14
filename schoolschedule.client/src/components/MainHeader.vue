@@ -1,6 +1,16 @@
 <script setup>
-import {reactive} from 'vue';
-import { vOnClickOutside } from '@vueuse/components';
+import {reactive, computed} from 'vue';
+
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const todayDate = new Date();
+
+const currentDay = computed(() => todayDate.getDate());
+const currentMonth = computed(() => monthNames[todayDate.getMonth()]);
+const currentYear = computed(() => todayDate.getFullYear());
+
 
 const showInterface = reactive({
     sidebar: false
@@ -26,7 +36,10 @@ function closeSidebar(){
 <template>
 <div class="container-header">
     <button id="open-sidebar" class="open-sidebar-button" @click="openSidebar()"/>
-    <div class="header-text">Расписание</div>
+    <div class="info">
+        <div class="header-text">Расписание</div>
+        <div>{{ currentDay }} {{ currentMonth }} {{ currentYear }}</div>
+    </div>
 </div>
 <Transition name="sidebar">
     <div v-if="showInterface.sidebar" class="container-sidebar">
@@ -43,6 +56,8 @@ function closeSidebar(){
 
 .container-header{
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100vw;
     height: 10vh;
     background-color: orange;
@@ -60,10 +75,10 @@ function closeSidebar(){
 }
 
 .header-text{
-    font-family: 'Lora', serif;
+    font-family: 'Schedule', sans-serif;
     font-size: 2rem;
-    margin: auto;
-    align-self: center;
+    margin-right: 1em;
+    color: black;
 }
 
 .open-sidebar-button{
@@ -124,6 +139,11 @@ function closeSidebar(){
 .sidebar-leave-to {
     transform: translateX(-100px);
     opacity: 0;
+}
+
+@font-face {
+    font-family: 'Schedule';
+    src: url('@/assets/font/schedule.ttf') format('truetype');
 }
 
 </style>

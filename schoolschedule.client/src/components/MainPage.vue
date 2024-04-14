@@ -3,7 +3,7 @@ import LoadingAnimation from '@/view/LoadingAnimation.vue';
 
 import { mainWeek } from '@/core/week';
 
-import { ref, onMounted} from 'vue';
+import { ref, onMounted, computed} from 'vue';
 
 onMounted(async () => {
     await getSchedule();
@@ -44,14 +44,22 @@ async function getSchedule(){
     loading.value = false;
 }
 
+const checkIfThereAreLessons = computed(() =>{
+    if(mainWeek.weekSchedule.monday.length > 0 && mainWeek.weekSchedule.tuesday.length > 0 && mainWeek.weekSchedule.wednesday.length > 0 && 
+        mainWeek.weekSchedule.thursday.length > 0 && mainWeek.weekSchedule.friday.length > 0){
+        return true;
+    }
+    return false;
+});
+
 </script>
 
 <template>
-<div class="container">
-    <div v-if="loading" class="loading-animation">
-            <loading-animation />
-        </div>
-    <div v-else class="table-container">
+<div v-if="loading" class="loading-animation">
+    <loading-animation />
+</div>
+<div v-else class="container">
+    <div class="table-container">
         <div class="table-nav">
             <button class="left-button custom-button" @click="prevWeek()" />
             <div class="week-header">Неделя {{ mainWeek.weekNumber }}</div>
@@ -59,6 +67,9 @@ async function getSchedule(){
         </div>
         <div v-if="error" class="error-message">
             {{ error }}
+        </div>
+        <div v-else-if="!checkIfThereAreLessons" class="no-schedule">
+            Нет расписания на эту неделю
         </div>
         <table v-else class="table table-striped text-center">
             <thead class="table-purple">
@@ -75,27 +86,26 @@ async function getSchedule(){
             <tbody>
                 <tr>
                     <th scope="row">Понедельник</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.monday" :key="index">{{ course }}</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.monday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Вторник</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.tuesday" :key="index">{{ course }}</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.tuesday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Среда</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.wednesday" :key="index">{{ course }}</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.wednesday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Четверг</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.thursday" :key="index">{{ course }}</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.thursday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Пятница</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.friday" :key="index">{{ course }}</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.friday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
                 </tr>
             </tbody>
         </table>
-        <router-link class="edit-button custom-button" :to="{name: 'Edit', params: {id: mainWeek.weekNumber}}" />
     </div>   
 </div>
 </template>
@@ -116,6 +126,8 @@ async function getSchedule(){
     padding: 20px;
     background-color: white;
     margin-top: auto;
+    min-width: 700px;
+    min-height: 450px;
 }
 
 .table-nav{
@@ -172,6 +184,11 @@ table th,tr,td{
 
 .time{
     background-color: black;
+}
+
+.no-schedule{
+    font-size: 2rem;
+    text-align: center;
 }
 
 .error-message{

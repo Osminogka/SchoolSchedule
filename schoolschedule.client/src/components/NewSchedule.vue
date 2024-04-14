@@ -70,7 +70,7 @@ async function postNewSchedule(){
 
 <template>
     <div v-if="loading">
-            <loading-animation />
+        <loading-animation />
     </div>
     <div v-else class="container">
         <div class="header-text">Новое расписание для недели {{ mainWeek.maxWeek }}</div>
