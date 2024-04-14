@@ -1,7 +1,7 @@
 <script setup>
 import LoadingAnimation from '@/view/LoadingAnimation.vue';
 
-import { week } from '@/core/week';
+import { mainWeek } from '@/core/week';
 
 import { ref, onMounted} from 'vue';
 
@@ -13,26 +13,27 @@ const loading = ref(false);
 const error = ref(null);
 
 async function prevWeek(){
-    if(week.weekNumber > 1){
-        week.weekNumber -= 1;
+    if(mainWeek.weekNumber > 1){
+        mainWeek.weekNumber -= 1;
         await getSchedule();
     }
 }
 
 async function nextWeek(){
-    if(week.weekNumber < 52){
-        week.weekNumber += 1;
+    if(mainWeek.weekNumber < 52){
+        mainWeek.weekNumber += 1;
         await getSchedule();
     }
 }
 
 async function getSchedule(){
     loading.value = true;
-    let response = await fetch('/api/schedule?week=' + week.weekNumber);
+    let response = await fetch('/api/schedule/get?week=' + mainWeek.weekNumber);
     if(response.ok){
         let data = await response.json();
         if(data.success){
-            week.weekSchedule = data.week;
+            mainWeek.weekSchedule = data.week;
+            mainWeek.maxWeek = data.week.weekNumber + 1;
             error.value = null;
         }
         else
@@ -47,16 +48,16 @@ async function getSchedule(){
 
 <template>
 <div class="container">
-    <div class="table-container">
-        <div v-if="!loading" class="table-nav">
-            <button class="left-button custom-button" @click="prevWeek()" />
-            <div class="week-header">Неделя {{ week.weekNumber }}</div>
-            <button class="right-button custom-button" @click="nextWeek()"/>
-        </div>
-        <div v-if="loading" class="loading-animation">
+    <div v-if="loading" class="loading-animation">
             <loading-animation />
         </div>
-        <div v-else-if="error" class="error-message">
+    <div v-else class="table-container">
+        <div class="table-nav">
+            <button class="left-button custom-button" @click="prevWeek()" />
+            <div class="week-header">Неделя {{ mainWeek.weekNumber }}</div>
+            <button class="right-button custom-button" @click="nextWeek()"/>
+        </div>
+        <div v-if="error" class="error-message">
             {{ error }}
         </div>
         <table v-else class="table table-striped text-center">
@@ -74,52 +75,27 @@ async function getSchedule(){
             <tbody>
                 <tr>
                     <th scope="row">Понедельник</th>
-                    <td>English</td>
-                    <td>Physics</td>
-                    <td>Maths</td>
-                    <td>Tamil</td>
-                    <td>Computer</td>
-                    <td>Chemistry</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.monday" :key="index">{{ course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Вторник</th>
-                    <td>English</td>
-                    <td>Physics</td>
-                    <td>Maths</td>
-                    <td>Tamil</td>
-                    <td>Computer</td>
-                    <td>Chemistry</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.tuesday" :key="index">{{ course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Среда</th>
-                    <td>English</td>
-                    <td>Physics</td>
-                    <td>Maths</td>
-                    <td>Tamil</td>
-                    <td>Computer Lab</td>
-                    <td>Chemistry</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.wednesday" :key="index">{{ course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Четверг</th>
-                    <td>English</td>
-                    <td>Physics</td>
-                    <td>Maths</td>
-                    <td>Tamil</td>
-                    <td>Computer</td>
-                    <td>Chemistry</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.thursday" :key="index">{{ course }}</td>
                 </tr>
                 <tr>
                     <th scope="row">Пятница</th>
-                    <td>Science Lab</td>
-                    <td>English</td>
-                    <td>Computer</td>
-                    <td>Chemistry</td>
-                    <td>Maths</td>
-                    <td>Physics</td>
+                    <td v-for="(course, index) of mainWeek.weekSchedule.friday" :key="index">{{ course }}</td>
                 </tr>
             </tbody>
         </table>
-        <router-link class="edit-button custom-button" :to="{name: 'Edit', params: {id: week.weekNumber}}" />
+        <router-link class="edit-button custom-button" :to="{name: 'Edit', params: {id: mainWeek.weekNumber}}" />
     </div>   
 </div>
 </template>

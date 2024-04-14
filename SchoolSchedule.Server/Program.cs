@@ -41,6 +41,18 @@ app.MapControllers();
 app.MapFallbackToFile("/index.html");
 
 var scope = app.Services.CreateScope();
-scope.ServiceProvider.GetRequiredService<ScheduleContext>().Database.Migrate();
+var ctx = scope.ServiceProvider.GetRequiredService<ScheduleContext>();
+
+Course? course = await ctx.Courses.SingleOrDefaultAsync(obj => obj.Id == 1);
+if(course == null)
+{
+    Course tempCourse = new Course()
+    {
+        Name = "No"
+    };
+    await ctx.Courses.AddAsync(tempCourse);
+    await ctx.SaveChangesAsync();
+}
+
 
 app.Run();

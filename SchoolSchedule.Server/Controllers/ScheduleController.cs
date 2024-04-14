@@ -23,30 +23,28 @@ namespace SchoolSchedule.Server.Controllers
             Schedule schedule = new Schedule();
             Course? course = new Course();
             try
-            {
-
-                schedule.Week = week.WeekNumber;
+            {           
                 foreach (PropertyInfo property in week.GetType().GetProperties())
                 {
                     if (property.PropertyType == typeof(List<string>)) // Only process properties that are List<string>
-                    {
-                        schedule.DayOfWeek = (int)Enum.Parse(typeof(DayOfWeekNumber), property.Name);
-                        
+                    {  
                         var daySchedule = (List<string>)property.GetValue(week, null);
                         int lessonNumber = 1;
                         foreach (string lesson in daySchedule)
                         {
+                            schedule.Week = week.WeekNumber;
                             schedule.LessonNumber = lessonNumber;
+                            schedule.DayOfWeek = (int)Enum.Parse(typeof(DayOfWeekNumber), property.Name);
                             course = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == lesson);
-                            if(course == null)
-                            {
-                                response.Message = $"Lesson ${lessonNumber}, such course doesn't exist";
-                                return Ok(response);
-                            }
-                            schedule.CourseId = course.Id;
+                            if (course == null)
+                                schedule.CourseId = 1;
+                            else
+                                schedule.CourseId = course.Id;
+                            await ScheduleContext.Schedules.AddAsync(schedule);
+                            lessonNumber++;
+                            schedule = new Schedule();
                         }
                     }
-                    await ScheduleContext.Schedules.AddAsync(schedule);
                 }
 
                 await ScheduleContext.SaveChangesAsync();
@@ -130,6 +128,7 @@ namespace SchoolSchedule.Server.Controllers
                 weekResponse.Wednesday = weekSchedule.Where(obj => obj.DayOfWeek == 3).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
                 weekResponse.Thursday = weekSchedule.Where(obj => obj.DayOfWeek == 4).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
                 weekResponse.Friday = weekSchedule.Where(obj => obj.DayOfWeek == 5).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+                weekResponse.WeekNumber = ScheduleContext.Schedules.Max(obj => obj.Week);
             }
             catch (Exception ex)
             {

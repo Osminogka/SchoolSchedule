@@ -1,7 +1,8 @@
 import { reactive, ref } from 'vue';
 
-export const week = reactive({
+export const mainWeek = reactive({
     weekNumber: 1,
+    maxWeek: 1,
     weekSchedule:{
         monday: [],
         tuesday: [],

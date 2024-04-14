@@ -5,7 +5,7 @@ using SchoolSchedule.Server.Models;
 namespace SchoolSchedule.Server.Controllers
 {
     [ApiController]
-    [Route("api/course")]
+    [Route("api/courses")]
     public class CourseController : BaseController
     {
         public ScheduleContext ScheduleContext;
@@ -15,8 +15,8 @@ namespace SchoolSchedule.Server.Controllers
             ScheduleContext = ctx;
         }
 
-        [HttpPost("new")]
-        public async Task<IActionResult> createNewCourseAsync([FromBody] string course)
+        [HttpGet("new")]
+        public async Task<IActionResult> createNewCourseAsync([FromQuery] string course)
         {
             Response response = new Response();
 
@@ -60,7 +60,7 @@ namespace SchoolSchedule.Server.Controllers
             
             try
             {
-                response.Courses = await ScheduleContext.Courses.Select(obj => obj.Name).ToListAsync();
+                response.Courses = await ScheduleContext.Courses.Where(obj => obj.Id != 1).Select(obj => obj.Name).ToListAsync();
             }
             catch(Exception ex)
             {
@@ -69,6 +69,31 @@ namespace SchoolSchedule.Server.Controllers
 
             response.Success = true;
             response.Message = "Got all courses";
+            return Ok(response);
+        }
+
+        [HttpGet("delete")]
+        public async Task<IActionResult> deleteCourse([FromQuery] string courseName)
+        {
+            Response response = new Response();
+            try
+            {
+                Course? course = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == courseName && obj.Id != 1);
+                if(course == null)
+                {
+                    response.Message = "Such course doesn't exist";
+                    return Ok(response);
+                }
+                ScheduleContext.Courses.Remove(course);
+                await ScheduleContext.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                return HandleException(ex);
+            }
+
+            response.Success = true;
+            response.Message = "Such course already exist";
             return Ok(response);
         }
     }

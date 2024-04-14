@@ -11,8 +11,8 @@ using SchoolSchedule.Server.Models;
 namespace SchoolSchedule.Server.Migrations
 {
     [DbContext(typeof(ScheduleContext))]
-    [Migration("20240413054823_DayOfWeekAdded")]
-    partial class DayOfWeekAdded
+    [Migration("20240414120536_FinalMigration")]
+    partial class FinalMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,10 +31,6 @@ namespace SchoolSchedule.Server.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

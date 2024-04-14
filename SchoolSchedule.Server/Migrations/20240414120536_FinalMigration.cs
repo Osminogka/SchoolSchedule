@@ -5,7 +5,7 @@
 namespace SchoolSchedule.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class ScheduleSetup : Migration
+    public partial class FinalMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,8 +16,7 @@ namespace SchoolSchedule.Server.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,7 +30,9 @@ namespace SchoolSchedule.Server.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CourseId = table.Column<int>(type: "int", nullable: false),
-                    Week = table.Column<int>(type: "int", nullable: false)
+                    Week = table.Column<int>(type: "int", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
+                    LessonNumber = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

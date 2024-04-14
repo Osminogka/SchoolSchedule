@@ -1,5 +1,7 @@
 <script setup>
-import {week, courses} from '@/core/week';
+import LoadingAnimation from '@/view/LoadingAnimation.vue';
+
+import { mainWeek, courses } from '@/core/week';
 
 import { reactive, ref, onMounted } from 'vue';
 
@@ -7,17 +9,24 @@ const loading = ref(false);
 const error = ref(null);
 const result = ref(null);
 
+const dayOfWeeks = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+
+const week = reactive({
+    monday: ['', '', '', '', '', ''],
+    tuesday: ['', '', '', '', '', ''],
+    wednesday: ['', '', '', '', '', ''],
+    thursday: ['', '', '', '', '', ''],
+    friday: ['', '', '', '', '', ''],
+    weekNumber: mainWeek.maxWeek
+});
+
 onMounted(async () => {
     await getCourses();
 });
 
-const weekNumber = ref(week.weekNumber + 1);
-
-const newSchedule = reactive();
-
 async function getCourses(){
     loading.value = true;
-    let response = await fetch('/api/courses');
+    let response = await fetch('/api/courses/get');
     if(response.ok){
         let data = await response.json();
         if(data.success){
@@ -40,10 +49,7 @@ async function postNewSchedule(){
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            week: weekNumber.value,
-            schedule: newSchedule
-        })
+        body: JSON.stringify(week)
     });
     if(response.ok){
         let data = await response.json();
@@ -57,13 +63,17 @@ async function postNewSchedule(){
     else{
         error.value = 'Ошибка при сохранении расписания';
     }
+    loading.value = false;
 }
 
 </script>
 
 <template>
-    <div class="container">
-        <div class="header-text">Новое расписание для недели {{ weekNumber }}</div>
+    <div v-if="loading">
+            <loading-animation />
+    </div>
+    <div v-else class="container">
+        <div class="header-text">Новое расписание для недели {{ mainWeek.maxWeek }}</div>
         <table>
             <thead>
                 <th>День недели</th>
@@ -76,9 +86,9 @@ async function postNewSchedule(){
             <tbody>
                 <tr>
                     <td>8:00-8:40</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][0]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -86,9 +96,9 @@ async function postNewSchedule(){
                 </tr>
                 <tr>
                     <td>8:50-9:30</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][1]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -96,9 +106,9 @@ async function postNewSchedule(){
                 </tr>
                 <tr>
                     <td>9:50-10:30</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][2]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -106,9 +116,9 @@ async function postNewSchedule(){
                 </tr>
                 <tr>
                     <td>11:50-12:30</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][3]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -116,9 +126,9 @@ async function postNewSchedule(){
                 </tr>
                 <tr>
                     <td>12:50-13:30</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][4]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -126,9 +136,9 @@ async function postNewSchedule(){
                 </tr>
                 <tr>
                     <td>13:40-14:20</td>
-                    <td v-for="(dayNumber, index) of 5">
+                    <td v-for="(dayNumber, index) of dayOfWeeks">
                         <div>
-                            <select>
+                            <select v-model="week[dayNumber][5]">
                                 <option v-for="course in courses" :value="course">{{ course }}</option>
                             </select>
                         </div>
@@ -152,6 +162,11 @@ async function postNewSchedule(){
     background-color: white;
     border: 3px solid black;
     border-radius: 1em;
+}
+
+table th,tr,td{
+    padding:10px !important;
+    border: 1px solid #ccc !important;
 }
 
 table{
@@ -185,6 +200,21 @@ td{
     font-size: 1.5rem;
     font-family: 'Lora', serif;
     cursor: pointer;
+}
+
+select{
+    background-color: orange;
+    border: 1px solid black;
+    border-radius: 0.2em;
+    width: 100%;
+    height: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+option{
+    background-color: orange;
+    color: black;
 }
 
 </style>
