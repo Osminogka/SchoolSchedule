@@ -76,6 +76,7 @@ const newCourseName = ref('');
         <loading-animation />
     </div>
     <div v-else class="container">
+        <div class="container-new-course">
         <div>
             <div class="existing-couse-header">Добавить новый курс</div>
             <div class="new-course-container">
@@ -95,6 +96,7 @@ const newCourseName = ref('');
                 </div>
             </div>
         </div>
+        </div>
     </div>
 </template>
 
@@ -102,15 +104,21 @@ const newCourseName = ref('');
 
 .container{
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-around;
-    margin-top: 10vh;
     width: 100vw;
-    height: 60vh;
-    background-color: white;
+    height: 90vh;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.container-new-course{
     border: 3px solid black;
-    border-radius: 1em;
+    border-radius: 0.5em;
+    padding: 20px;
+    background-color: white;
+    width: 90%;
+    left: 1;
+    right: 1;
+    margin-top: 10em;
 }
 
 .new-course-container{

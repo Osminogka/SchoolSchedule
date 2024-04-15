@@ -58,15 +58,19 @@ function closeSidebar(){
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100vw;
+    width: 100%;
     height: 10vh;
+    left: 0;
+    right: 0;
+    position: fixed;
     background-color: orange;
 }
 
 .container-sidebar{
     display: flex;
-    width: 20vw;
+    width: 20%;
     height: 90vh;
+    top: 10vh;
     background-color: orange;
     border-right: 5px solid black;
     border-top: 5px solid black;
@@ -144,6 +148,21 @@ function closeSidebar(){
 @font-face {
     font-family: 'Schedule';
     src: url('@/assets/font/schedule.ttf') format('truetype');
+}
+
+@media screen and (max-width: 768px) {
+    .container-sidebar{
+        top: 15vh;
+    }
+
+    .container-header{
+        height: 15vh;
+    }
+
+    .container-sidebar{
+        width: 60%;
+        height: 85vh;
+    }
 }
 
 </style>

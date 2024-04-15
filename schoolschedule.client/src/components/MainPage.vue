@@ -5,12 +5,14 @@ import { mainWeek } from '@/core/week';
 
 import { ref, onMounted, computed} from 'vue';
 
+const dayOfWeeks = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const loading = ref(false);
+const error = ref(null);
+
+
 onMounted(async () => {
     await getSchedule();
 });
-
-const loading = ref(false);
-const error = ref(null);
 
 async function prevWeek(){
     if(mainWeek.weekNumber > 1){
@@ -52,6 +54,10 @@ const checkIfThereAreLessons = computed(() =>{
     return false;
 });
 
+function getCourse(day, time){
+    return mainWeek.weekSchedule[day][time]
+}
+
 </script>
 
 <template>
@@ -71,41 +77,46 @@ const checkIfThereAreLessons = computed(() =>{
         <div v-else-if="!checkIfThereAreLessons" class="no-schedule">
             Нет расписания на эту неделю
         </div>
-        <table v-else class="table table-striped text-center">
-            <thead class="table-purple">
-                <tr>
-                    <th class="time" scope="col">Время</th>
-                    <th class="time" scope="col">8:00-8:40</th>
-                    <th class="time" scope="col">8:50-9:30</th>
-                    <th class="time" scope="col">9:50-10:30</th>
-                    <th class="time" scope="col">11:50-12:30</th>
-                    <th class="time" scope="col">12:50-13:30</th>
-                    <th class="time" scope="col">13:40-14:20</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th scope="row">Понедельник</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.monday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Вторник</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.tuesday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Среда</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.wednesday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Четверг</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.thursday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">Пятница</th>
-                    <td v-for="(course, index) of mainWeek.weekSchedule.friday" :key="index">{{ course == "No" ? "Нет занятий" : course }}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div v-else class="table-overflow">
+            <table class="table table-striped text-center">
+                <thead class="table-purple">
+                    <tr>
+                        <th class="time" scope="col">Время</th>
+                        <th class="time" scope="col">Пн</th>
+                        <th class="time" scope="col">Вт</th>
+                        <th class="time" scope="col">Ср</th>
+                        <th class="time" scope="col">Чт</th>
+                        <th class="time" scope="col">Пт</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">8:00-8:40</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 0) == "No" ? "Нет занятий" : getCourse(course, 0) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">8:50-9:30</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 1) == "No" ? "Нет занятий" : getCourse(course, 1) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">9:50-10:30</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 2) == "No" ? "Нет занятий" : getCourse(course, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">11:50-12:30</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 3) == "No" ? "Нет занятий" : getCourse(course, 3) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">12:50-13:30</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 4) == "No" ? "Нет занятий" : getCourse(course, 4) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">13:40-14:20</th>
+                        <td v-for="(course, index) of dayOfWeeks" :key="index">{{ getCourse(course, 5) == "No" ? "Нет занятий" : getCourse(course, 5) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>   
 </div>
 </template>
@@ -115,8 +126,8 @@ const checkIfThereAreLessons = computed(() =>{
 .container{
     display: flex;
     width: 100vw;
-    height: 60vh;
-    align-items: center;
+    height: 90vh;
+    align-items: flex-start;
     justify-content: center;
 }
 
@@ -125,9 +136,15 @@ const checkIfThereAreLessons = computed(() =>{
     border-radius: 0.5em;
     padding: 20px;
     background-color: white;
-    margin-top: auto;
-    min-width: 700px;
-    min-height: 450px;
+    width: 90%;
+    position: fixed;
+    left: 1;
+    right: 1;
+    margin-top: 13em;
+}
+
+.table-overflow{
+    overflow-y: auto;
 }
 
 .table-nav{
@@ -174,7 +191,7 @@ table{
 }
 
 table th,tr,td{
-    padding:15px !important;
+    padding:15px;
     border: 1px solid #ccc !important;
 }
 
@@ -197,4 +214,20 @@ table th,tr,td{
     text-align: center;
 }
 
+@media screen and (max-width: 768px){
+    .container{
+        height: 85vh;
+    }
+
+    .table-container{
+        min-width: 300px;
+        min-height: 300px;
+    }
+
+    table th,tr,td{
+        padding: 1px;
+        width: 20px;
+    }
+
+}
 </style>
