@@ -40,7 +40,7 @@ namespace SchoolSchedule.Server.Controllers
                             if (course == null)
                                 lessonName = "No";
                             else
-                                lessonName = course.Name;
+                                lessonName = course.Name.Replace(" ","-");
                             sb.Append(" " + lessonName);
                         }
                         schedule.Course = sb.ToString().TrimStart(' ');
@@ -128,11 +128,11 @@ namespace SchoolSchedule.Server.Controllers
                 if (weekSchedule.Count == 0)
                     return Ok(weekResponse);
 
-                weekResponse.Monday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 1)?.Course.Split(' ').ToList() ?? new List<string>();
-                weekResponse.Tuesday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 2)?.Course.Split(' ').ToList() ?? new List<string>();
-                weekResponse.Wednesday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 3)?.Course.Split(' ').ToList() ?? new List<string>();
-                weekResponse.Thursday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 4)?.Course.Split(' ').ToList() ?? new List<string>();
-                weekResponse.Friday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 5)?.Course.Split(' ').ToList() ?? new List<string>();
+                weekResponse.Monday = getCourses(weekSchedule, 1);
+                weekResponse.Tuesday = getCourses(weekSchedule, 2);
+                weekResponse.Wednesday = getCourses(weekSchedule, 3);
+                weekResponse.Thursday = getCourses(weekSchedule, 4);
+                weekResponse.Friday = getCourses(weekSchedule, 5);
                 weekResponse.WeekNumber = ScheduleContext.Schedules.Max(obj => obj.Week);
             }
             catch (Exception ex)
@@ -144,6 +144,11 @@ namespace SchoolSchedule.Server.Controllers
             response.Success = true;
             response.Message = "Week schedule updated";
             return Ok(response);
+        }
+
+        private List<string> getCourses(List<Schedule> weekSchedule, int day)
+        {
+            return weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == day)?.Course.Split(' ').Select(item => item.Replace("-", " ")).ToList() ?? new List<string>();
         }
     }
 
