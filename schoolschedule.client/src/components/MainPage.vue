@@ -39,9 +39,20 @@ async function getSchedule(){
             error.value = null;
         }
         else
+        {
+            mainWeek.weekSchedule = {
+                monday: [],
+                tuesday: [],
+                wednesday: [],
+                thursday: [],
+                friday: [],
+                weekNumber: mainWeek.weekNumber
+            }
             error.value = data.message;
-    } else {
-        //error.value = 'Ошибка при загрузке расписания';
+        }
+    } 
+    else {
+        error.value = 'Ошибка при загрузке расписания';
     }
     loading.value = false;
 }

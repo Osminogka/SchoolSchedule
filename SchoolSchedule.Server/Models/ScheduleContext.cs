@@ -8,14 +8,5 @@ namespace SchoolSchedule.Server.Models
 
         public DbSet<Schedule> Schedules => Set<Schedule>();
         public DbSet<Course> Courses => Set<Course>();
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Schedule>()
-                .HasOne(e => e.Course)
-                .WithMany(e => e.Schedules)
-                .HasForeignKey(e => e.CourseId)
-                .IsRequired();
-        }
     }
 }

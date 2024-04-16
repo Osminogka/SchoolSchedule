@@ -4,10 +4,12 @@ import LoadingAnimation from '@/view/LoadingAnimation.vue';
 import { mainWeek, courses } from '@/core/week';
 
 import { reactive, ref, onMounted } from 'vue';
+import {useRouter} from 'vue-router';
 
 const loading = ref(false);
 const error = ref(null);
 const result = ref(null);
+const router = useRouter();
 
 const dayOfWeeks = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
@@ -55,6 +57,7 @@ async function postNewSchedule(){
         let data = await response.json();
         if(data.success){
             result.value = data.message;
+            router.push({name: 'Schedule'});
         }
         else{
             error.value = data.message;

@@ -7,17 +7,12 @@ namespace SchoolSchedule.Server.Models
         [Key]
         public int Id { get; set; }
 
-        public int CourseId { get; set; }
-
-        public Course Course { get; set; }
+        public string Course { get; set; } = string.Empty;
 
         [Required]
         public int Week { get; set; }
 
         [Required]
         public int DayOfWeek { get; set; }
-
-        [Required]
-        public int LessonNumber { get; set; }
     }
 }

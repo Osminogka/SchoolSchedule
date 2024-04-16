@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolSchedule.Server.Models;
 using System.Reflection;
+using System.Text;
 
 namespace SchoolSchedule.Server.Controllers
 {
@@ -22,28 +23,30 @@ namespace SchoolSchedule.Server.Controllers
             Response response = new Response();
             Schedule schedule = new Schedule();
             Course? course = new Course();
+            StringBuilder sb = new StringBuilder();
+            string lessonName = "";
             try
             {           
                 foreach (PropertyInfo property in week.GetType().GetProperties())
                 {
+                    schedule.Week = week.WeekNumber;
                     if (property.PropertyType == typeof(List<string>)) // Only process properties that are List<string>
-                    {  
+                    {
+                        schedule.DayOfWeek = (int)Enum.Parse(typeof(DayOfWeekNumber), property.Name);
                         var daySchedule = (List<string>)property.GetValue(week, null);
-                        int lessonNumber = 1;
                         foreach (string lesson in daySchedule)
                         {
-                            schedule.Week = week.WeekNumber;
-                            schedule.LessonNumber = lessonNumber;
-                            schedule.DayOfWeek = (int)Enum.Parse(typeof(DayOfWeekNumber), property.Name);
                             course = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == lesson);
                             if (course == null)
-                                schedule.CourseId = 1;
+                                lessonName = "No";
                             else
-                                schedule.CourseId = course.Id;
-                            await ScheduleContext.Schedules.AddAsync(schedule);
-                            lessonNumber++;
-                            schedule = new Schedule();
+                                lessonName = course.Name;
+                            sb.Append(" " + lessonName);
                         }
+                        schedule.Course = sb.ToString().TrimStart(' ');
+                        await ScheduleContext.Schedules.AddAsync(schedule);
+                        schedule = new Schedule();
+                        sb = new StringBuilder();
                     }
                 }
 
@@ -86,14 +89,13 @@ namespace SchoolSchedule.Server.Controllers
                             int lessonNumber = 1;
                             foreach (string lesson in daySchedule)
                             {
-                                schedule.LessonNumber = lessonNumber;
                                 course = await ScheduleContext.Courses.SingleOrDefaultAsync(obj => obj.Name == lesson);
                                 if (course == null)
                                 {
                                     response.Message = $"Lesson ${lessonNumber}, such course doesn't exist";
                                     return Ok(response);
                                 }
-                                schedule.CourseId = course.Id;
+                                schedule.Course = course.Name;
                             }
                         }
                         ScheduleContext.Schedules.Update(schedule);
@@ -121,13 +123,16 @@ namespace SchoolSchedule.Server.Controllers
             try
             {
                 weekSchedule = await ScheduleContext.Schedules
-                    .Include(obj => obj.Course)
                     .Where(obj => obj.Week == week).ToListAsync();
-                weekResponse.Monday = weekSchedule.Where(obj => obj.DayOfWeek == 1).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
-                weekResponse.Tuesday = weekSchedule.Where(obj => obj.DayOfWeek == 2).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
-                weekResponse.Wednesday = weekSchedule.Where(obj => obj.DayOfWeek == 3).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
-                weekResponse.Thursday = weekSchedule.Where(obj => obj.DayOfWeek == 4).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
-                weekResponse.Friday = weekSchedule.Where(obj => obj.DayOfWeek == 5).OrderBy(obj => obj.LessonNumber).Select(obj => obj.Course.Name).ToList();
+
+                if (weekSchedule.Count == 0)
+                    return Ok(weekResponse);
+
+                weekResponse.Monday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 1)?.Course.Split(' ').ToList() ?? new List<string>();
+                weekResponse.Tuesday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 2)?.Course.Split(' ').ToList() ?? new List<string>();
+                weekResponse.Wednesday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 3)?.Course.Split(' ').ToList() ?? new List<string>();
+                weekResponse.Thursday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 4)?.Course.Split(' ').ToList() ?? new List<string>();
+                weekResponse.Friday = weekSchedule.SingleOrDefault(obj => obj.DayOfWeek == 5)?.Course.Split(' ').ToList() ?? new List<string>();
                 weekResponse.WeekNumber = ScheduleContext.Schedules.Max(obj => obj.Week);
             }
             catch (Exception ex)

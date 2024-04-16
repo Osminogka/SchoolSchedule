@@ -46,13 +46,11 @@ namespace SchoolSchedule.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
+                    b.Property<string>("Course")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DayOfWeek")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LessonNumber")
                         .HasColumnType("int");
 
                     b.Property<int>("Week")
@@ -60,25 +58,7 @@ namespace SchoolSchedule.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
-
                     b.ToTable("Schedules");
-                });
-
-            modelBuilder.Entity("SchoolSchedule.Server.Models.Schedule", b =>
-                {
-                    b.HasOne("SchoolSchedule.Server.Models.Course", "Course")
-                        .WithMany("Schedules")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("SchoolSchedule.Server.Models.Course", b =>
-                {
-                    b.Navigation("Schedules");
                 });
 #pragma warning restore 612, 618
         }
