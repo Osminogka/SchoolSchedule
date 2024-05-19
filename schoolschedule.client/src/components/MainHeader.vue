@@ -40,16 +40,16 @@ function closeSidebar(){
         <div class="header-text">Расписание</div>
         <div>{{ currentDay }} {{ currentMonth }} {{ currentYear }}</div>
     </div>
-</div>
-<Transition name="sidebar">
-    <div v-if="showInterface.sidebar" class="container-sidebar">
-        <div class="router-links">
-            <router-link class="link" :to="{name: 'Schedule'}" @click="closeSidebar()">Расписание</router-link>
-            <router-link class="link" :to="{name: 'New'}" @click="closeSidebar()">Новое расписание</router-link>
-            <router-link class="link" :to="{name: 'NewCourse'}" @click="closeSidebar()">Новый курс</router-link>
+    <Transition name="sidebar">
+        <div v-if="showInterface.sidebar" class="container-sidebar">
+            <div class="router-links">
+                <router-link class="link" :to="{name: 'Schedule'}" @click="closeSidebar()">Расписание</router-link>
+                <router-link class="link" :to="{name: 'New'}" @click="closeSidebar()">Новое расписание</router-link>
+                <router-link class="link" :to="{name: 'NewCourse'}" @click="closeSidebar()">Новый курс</router-link>
+            </div>
         </div>
-    </div>
-</Transition>
+    </Transition>
+</div>
 </template>
 
 <style scoped>
@@ -64,6 +64,7 @@ function closeSidebar(){
     right: 0;
     position: fixed;
     background-color: orange;
+    z-index: 1;
 }
 
 .container-sidebar{

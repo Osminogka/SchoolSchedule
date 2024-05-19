@@ -23,13 +23,21 @@ builder.Services.AddDbContext<ScheduleContext>(opts =>
     opts.UseSqlServer(Schedule));
 
 
-builder.Services.AddHttpsRedirection(options =>
+if (!builder.Environment.IsDevelopment())
 {
-    options.RedirectStatusCode = Status307TemporaryRedirect;
-    options.HttpsPort = 5000;
-});
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.RedirectStatusCode = Status308PermanentRedirect;
+        options.HttpsPort = 443;
+    });
+}
 
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 

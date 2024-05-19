@@ -87,15 +87,15 @@ const newCourseName = ref('');
             </div>
         </div>
         </div>
-        <div>
-            <div class="existing-couse-header">Существующие курсы</div>
-            <div class="existing-courses-container">
-                <div class="existing-course-entity" v-for="(course,index) in courses" :key="index">
-                    {{ course }}
-                    <button class="delete-course-button custom-button" @click="deleteCourse(course)"/>
+            <div>
+                <div class="existing-couse-header">Существующие курсы</div>
+                <div class="existing-courses-container">
+                    <div class="existing-course-entity" v-for="(course,index) in courses" :key="index">
+                        {{ course }}
+                        <button class="delete-course-button custom-button" @click="deleteCourse(course)"/>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </template>
@@ -139,7 +139,7 @@ const newCourseName = ref('');
     margin: 1em;
     font-size: 1.5rem;
     overflow-y: auto;
-    max-height: 450px;
+    max-height: 350px;
 }
 
 .existing-course-entity{
